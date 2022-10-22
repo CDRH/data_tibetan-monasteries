@@ -4,6 +4,10 @@ class CsvToEs
     "fig_" + @row["id"]
   end
 
+  def category
+    "Religious figure"
+  end
+
   def title
     @row["name"]
   end
@@ -22,6 +26,13 @@ class CsvToEs
     else
       date
     end
+  end
+
+  def date_display
+    birth = Date.parse(date_not_before).year if date_not_before
+    death = Date.parse(date_not_after).year if date_not_after
+    puts birth, death
+    "#{birth}-#{death}"
   end
 
   def type
