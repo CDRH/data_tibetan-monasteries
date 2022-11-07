@@ -5,7 +5,7 @@ class CsvToEs
   end
 
   def category
-    "Religious figure"
+    "Religious figures"
   end
 
   def title

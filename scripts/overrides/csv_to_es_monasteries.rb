@@ -4,12 +4,16 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def category
-    "Monastery"
+    "Monasteries"
   end
 
   def spatial
     {
       "name" => @row["location"]
     }
+  end
+
+  def person
+    
   end
 end
