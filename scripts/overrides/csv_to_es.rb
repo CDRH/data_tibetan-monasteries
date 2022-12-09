@@ -43,5 +43,26 @@ class CsvToEs
 
   end
 
+  def rdf
+    monasteries = []
+    if @row["monasteries"]
+      JSON.parse(@row["monasteries"]).each do |monastery|
+        # each monastery should be in the format id|role|associated_teaching|story
+        monastery_data = monastery
+        monasteries << {
+          "subject" => title, #name of the current monastery
+          "predicate" => monastery[1], #role
+          "object" => "mon_" + monastery[0], #id
+          "source" => monastery[2], #associated teaching
+          "note" => monastery[3] #story
+        }
+      end
+    end
+    monasteries
+  end
+
+  def description
+    @row["biography"]
+  end
 
 end
