@@ -14,6 +14,18 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def person
-    
+    # how to get the associated figures back in to here?
+    # two-way relationships in Orchid and Elasticsearch
+    # it should it least
+  end
+
+  def date_not_before
+    if @row["founding_date"] && !@row["founding_date"].empty?
+      Datura::Helpers.date_standardize(@row["founding_date"], false)
+    end
+  end
+
+  def description
+    @row["description"]
   end
 end
