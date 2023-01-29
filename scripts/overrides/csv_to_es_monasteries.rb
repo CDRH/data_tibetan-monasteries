@@ -37,14 +37,16 @@ class CsvToEsMonasteries < CsvToEs
     figures = []
     if @row["figures"]
       # each figure should be in the format id|role|associated_teaching|story
-      figure_data = @row["figures"].split("|")
-      figures << {
-        "object" => title, #name of the current monastery
-        "predicate" => figure_data[1], #role
-        "subject" => figure_data[0], #id
-        "source" => figure_data[2], #associated teaching
-        "note" => figure_data[3] #story
-      }
+      JSON.parse(@row["figures"]).each do |figure|
+        figure_data = figure.split("|")
+        figures << {
+          "subject" => figure_data[0], #figure id and name
+          "predicate" => figure_data[1], #role
+          "object" => title, #name of current monastery
+          "source" => figure_data[2], #associated teaching
+          "note" => figure_data[3] #story
+        }
+      end
     end
     figures
   end
