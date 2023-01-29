@@ -25,7 +25,27 @@ class CsvToEsMonasteries < CsvToEs
     end
   end
 
+  def date_display
+    date_not_before
+  end
+
   def description
     @row["description"]
+  end
+
+  def rdf
+    figures = []
+    if @row["figures"]
+      # each figure should be in the format id|role|associated_teaching|story
+      figure_data = @row["figures"].split("|")
+      figures << {
+        "object" => title, #name of the current monastery
+        "predicate" => figure_data[1], #role
+        "subject" => figure_data[0], #id
+        "source" => figure_data[2], #associated teaching
+        "note" => figure_data[3] #story
+      }
+    end
+    figures
   end
 end

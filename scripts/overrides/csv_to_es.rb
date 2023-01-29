@@ -31,7 +31,6 @@ class CsvToEs
   def date_display
     birth = Date.parse(date_not_before).year if date_not_before
     death = Date.parse(date_not_after).year if date_not_after
-    puts birth, death
     "#{birth}-#{death}"
   end
 
@@ -46,17 +45,15 @@ class CsvToEs
   def rdf
     monasteries = []
     if @row["monasteries"]
-      JSON.parse(@row["monasteries"]).each do |monastery|
-        # each monastery should be in the format id|role|associated_teaching|story
-        monastery_data = monastery
-        monasteries << {
-          "subject" => title, #name of the current monastery
-          "predicate" => monastery[1], #role
-          "object" => "mon_" + monastery[0], #id
-          "source" => monastery[2], #associated teaching
-          "note" => monastery[3] #story
-        }
-      end
+      # each monastery should be in the format id|role|associated_teaching|story
+      monastery_data = JSON.parse(@row["monasteries"]).split("|")
+      monasteries << {
+        "subject" => title, #name of the current monastery
+        "predicate" => monastery_data[1], #role
+        "object" => monastery_data[0], #id
+        "source" => monastery_data[2], #associated teaching
+        "note" => monastery_data[3] #story
+      }
     end
     monasteries
   end
