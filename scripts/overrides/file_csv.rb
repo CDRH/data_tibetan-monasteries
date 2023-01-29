@@ -35,7 +35,7 @@ class FileCsv
   end
 
   def table_type
-    if self.filename.include? "figures"
+    if self.filename.include?("figures") && !self.filename.include?("heroku")
       "figures"
     else
       "monasteries"
