@@ -1,4 +1,9 @@
 class CsvToEsMonasteries < CsvToEs
+
+  def assemble_collection_specific
+    @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count
+  end
+
   def get_id
     "mon_" + @row["id"]
   end
@@ -20,13 +25,15 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def date_not_before
-    if @row["founding_date"] && !@row["founding_date"].empty?
-      Datura::Helpers.date_standardize(@row["founding_date"], false)
+    if @row["founding date"] && !@row["founding date"].empty?
+      Datura::Helpers.date_standardize(@row["founding date"], false)
     end
   end
 
   def date_display
-    date_not_before
+    if date_not_before
+      Date.parse(date_not_before).year.to_s
+    end
   end
 
   def description
@@ -34,12 +41,12 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def rdf
-    figures = []
+    items = []
     if @row["figures"]
       # each figure should be in the format id|role|associated_teaching|story
       JSON.parse(@row["figures"]).each do |figure|
         figure_data = figure.split("|")
-        figures << {
+        items << {
           "subject" => figure_data[0], #figure id and name
           "predicate" => figure_data[1], #role
           "object" => title, #name of current monastery
@@ -48,6 +55,19 @@ class CsvToEsMonasteries < CsvToEs
         }
       end
     end
-    figures
+    if relation
+      items << {
+        "subject" => uri,
+        "predicate" => "sameAs",
+        "object" => "https://library.bdrc.io/show/bdr:#{relation}",
+        "note" => "link"
+      }
+      #TODO Treasury of Lives
+    end
+    items
+  end
+
+  def relation
+    @row["BDRC number"]
   end
 end

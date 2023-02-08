@@ -1,5 +1,9 @@
 class CsvToEs
 
+  def assemble_collection_specific
+    @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count
+  end
+
   def get_id
     "fig_" + @row["id"]
   end
@@ -38,17 +42,17 @@ class CsvToEs
     @row["religious_tradition"]
   end
 
-  def uri
+  # def uri
 
-  end
+  # end
 
   def rdf
-    monasteries = []
+    items = []
     if @row["monasteries"]
       # each monastery should be in the format id|role|associated_teaching|story
       JSON.parse(@row["monasteries"]).each do |monastery|
         monastery_data = monastery.split("|")
-        monasteries << {
+        items << {
           "subject" => title, #name of the current figure
           "predicate" => monastery_data[1], #role
           "object" => monastery_data[0], #monastery id and name
@@ -57,11 +61,24 @@ class CsvToEs
         }
       end
     end
-    monasteries
+    if relation
+      items << {
+        "subject" => uri,
+        "predicate" => "sameAs",
+        "object" => "https://library.bdrc.io/show/bdr:#{relation}",
+        "note" => "link"
+      }
+      #TODO Treasury of Lives
+    end
+    items
   end
 
   def description
     @row["biography"]
+  end
+
+  def relation
+    @row["BDRC number"]
   end
 
 end
