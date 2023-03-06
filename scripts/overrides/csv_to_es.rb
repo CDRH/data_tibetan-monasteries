@@ -1,7 +1,7 @@
 class CsvToEs
 
   def assemble_collection_specific
-    @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count
+    @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
   end
 
   def get_id
@@ -66,19 +66,34 @@ class CsvToEs
         "subject" => uri,
         "predicate" => "sameAs",
         "object" => "https://library.bdrc.io/show/bdr:#{relation}",
+        "source" => "Buddhist Digital Resource Center",
         "note" => "link"
       }
       #TODO Treasury of Lives
+      items << {
+        "subject" => uri,
+        "predicate" => "sameAs",
+        "object" => "https://treasuryoflives.org/search/by_name/#{relation}",
+        "source" => "Treasury of Lives",
+        "note" => "link"
+      }
     end
     items
   end
 
   def description
-    @row["biography"]
+    @row["description"]
   end
 
   def relation
     @row["BDRC number"]
   end
+
+  def spatial
+    {
+      "name" => @row["birthplace"]
+    }
+  end
+
 
 end
