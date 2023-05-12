@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/CDRH/datura
-  revision: 6d90c8e0f9fe51c65011fd9ab57cb318f93ecaa1
-  branch: ruby3upgrade
+  revision: f286ab4d4a3510fe88dafa5f759f2cb5f0290ef2
+  branch: release/v1.0.0
   specs:
     datura (0.2.0.pre.beta)
       colorize (~> 0.8.1)
@@ -23,7 +23,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2023.0218.1)
     netrc (0.11.0)
-    nokogiri (1.14.2-x86_64-darwin)
+    nokogiri (1.14.3-x86_64-darwin)
       racc (~> 1.4)
     racc (1.6.2)
     rest-client (2.1.0)
