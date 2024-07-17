@@ -1,11 +1,13 @@
 class CsvToEs
 
   def assemble_collection_specific
+    # should be changed for baserow
     @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
   end
 
   def get_id
-    "fig_" + @row["id"]
+    #test to make sure this works with baserow but it should
+    @row["id 2"]
   end
 
   def category
@@ -13,10 +15,12 @@ class CsvToEs
   end
 
   def title
+    # should work for baserow
     @row["name"]
   end
 
   def date_not_before
+    #shuold work with baserow
     if @row["birth_date"] && !@row["birth_date"].empty?
       Datura::Helpers.date_standardize(@row["birth_date"], false)
     else
@@ -25,6 +29,7 @@ class CsvToEs
   end
 
   def date_not_after
+    #should work with baserow
     if @row["death_date"] && !@row["death_date"].empty?
       Datura::Helpers.date_standardize(@row["death_date"], false)
     else
@@ -39,6 +44,7 @@ class CsvToEs
   end
 
   def type
+    #should work with baserow
     @row["religious_tradition"]
   end
 
@@ -47,6 +53,7 @@ class CsvToEs
   # end
 
   def rdf
+    #I think this needs to be constructed for baserow
     items = []
     if @row["monasteries"]
       # each monastery should be in the format id|role|associated_teaching|story
@@ -62,6 +69,7 @@ class CsvToEs
       end
     end
     if relation
+      #this part should still work, although need to add the uri
       items << {
         "subject" => uri,
         "predicate" => "sameAs",
@@ -69,6 +77,7 @@ class CsvToEs
         "source" => "Buddhist Digital Resource Center",
         "note" => "link"
       }
+      #
       #TODO Treasury of Lives
       items << {
         "subject" => uri,
@@ -82,10 +91,12 @@ class CsvToEs
   end
 
   def description
+    #same as baserow
     @row["description"]
   end
 
   def relation
+    #same as baserow
     @row["BDRC number"]
   end
 

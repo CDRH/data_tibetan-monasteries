@@ -5,7 +5,8 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def get_id
-    "mon_" + @row["id"]
+    #should work with baserow
+    @row["id 2"]
   end
 
   def category
@@ -22,9 +23,12 @@ class CsvToEsMonasteries < CsvToEs
     # how to get the associated figures back in to here?
     # two-way relationships in Orchid and Elasticsearch
     # it should it least
+    # how to change for baserow? I'm not sure it is really different from the rdf field
+    # could record the figures somewhere
   end
 
   def date_not_before
+    #should work with baserow
     if @row["founding date"] && !@row["founding date"].empty?
       Datura::Helpers.date_standardize(@row["founding date"], false)
     end
@@ -38,6 +42,7 @@ class CsvToEsMonasteries < CsvToEs
 
 
   def rdf
+    # need to construct a markdown type field
     items = []
     if @row["figures"]
       # each figure should be in the format id|role|associated_teaching|story
@@ -56,6 +61,7 @@ class CsvToEsMonasteries < CsvToEs
       end
     end
     if relation
+      #this should work in baserow but I need to figure out the uri part
       items << {
         "subject" => uri,
         "predicate" => "sameAs",
