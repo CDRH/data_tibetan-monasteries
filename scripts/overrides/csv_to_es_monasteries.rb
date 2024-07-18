@@ -47,7 +47,6 @@ class CsvToEsMonasteries < CsvToEs
     if @row["Monasteries"]
       # each figure should be in the format id|role|associated_teaching|story
       @row["Monasteries"].split(",").each do |figure|
-        byebug
         figure_data = figure.split("|")
         if figure_data[2] == "nan"
           figure_data[2] = nil
