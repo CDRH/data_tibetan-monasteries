@@ -44,9 +44,10 @@ class CsvToEsMonasteries < CsvToEs
   def rdf
     # need to construct a markdown type field
     items = []
-    if @row["figures"]
+    if @row["Monasteries"]
       # each figure should be in the format id|role|associated_teaching|story
-      JSON.parse(@row["figures"]).each do |figure|
+      @row["Monasteries"].split(",").each do |figure|
+        byebug
         figure_data = figure.split("|")
         if figure_data[2] == "nan"
           figure_data[2] = nil

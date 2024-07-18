@@ -55,9 +55,9 @@ class CsvToEs
   def rdf
     #I think this needs to be constructed for baserow
     items = []
-    if @row["monasteries"]
+    if @row["Figures"]
       # each monastery should be in the format id|role|associated_teaching|story
-      JSON.parse(@row["monasteries"]).each do |monastery|
+      @row["Figures"].split(",").each do |monastery|
         monastery_data = monastery.split("|")
         items << {
           "subject" => title, #name of the current figure
