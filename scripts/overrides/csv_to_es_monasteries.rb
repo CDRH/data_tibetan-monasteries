@@ -44,19 +44,19 @@ class CsvToEsMonasteries < CsvToEs
   def rdf
     # need to construct a markdown type field
     items = []
-    if @row["Monasteries"]
+    if @row["Associated Figures"]
       # each figure should be in the format id|role|associated_teaching|story
-      @row["Monasteries"].split(",").each do |figure|
-        figure_data = figure.split("|")
+      @row["Associated Figures"].split("\",\"").each do |figure|
+        figure_data = figure.tr("\"", "").split("|")
         if figure_data[2] == "nan"
           figure_data[2] = nil
         end
         items << {
           "subject" => figure_data[0], #figure id and name
-          "predicate" => figure_data[1], #role
+          "predicate" => figure_data[2], #role
           "object" => title, #name of current monastery
-          "source" => figure_data[2], #associated teaching
-          "note" => figure_data[3] #story
+          "source" => figure_data[3], #associated teaching
+          "note" => figure_data[4] #story
         }
       end
     end

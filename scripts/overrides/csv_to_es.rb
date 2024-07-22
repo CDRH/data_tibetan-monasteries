@@ -55,16 +55,16 @@ class CsvToEs
   def rdf
     #I think this needs to be constructed for baserow
     items = []
-    if @row["Figures"]
+    if @row["Associated Monasteries"]
       # each monastery should be in the format id|role|associated_teaching|story
-      @row["Figures"].split(",").each do |monastery|
-        monastery_data = monastery.split("|")
+      @row["Associated Monasteries"].split("\",\"").each do |monastery|
+        monastery_data = monastery.tr("\"", "").split("|")
         items << {
           "subject" => title, #name of the current figure
-          "predicate" => monastery_data[1], #role
-          "object" => monastery_data[0], #monastery id and name
-          "source" => monastery_data[2], #associated teaching
-          "note" => monastery_data[3] #story
+          "predicate" => monastery_data[2], #role
+          "object" => monastery_data[1], #monastery id and name
+          "source" => monastery_data[3], #associated teaching
+          "note" => monastery_data[4] #story
         }
       end
     end
