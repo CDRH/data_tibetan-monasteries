@@ -2,6 +2,7 @@ class CsvToEsMonasteries < CsvToEs
 
   def assemble_collection_specific
     @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
+    @json["date_accessed_k"] = Datura::Helpers.date_standardize(@row["Accessed"], false)
   end
 
   def get_id
@@ -83,5 +84,20 @@ class CsvToEsMonasteries < CsvToEs
 
   def relation
     @row["BDRC number"]
+  end
+
+  def citation
+    date = "2024"
+    {
+      "name" => title,
+      "date" => Datura::Helpers.date_standardize(date),
+      "publisher" => "BDRC"
+    }
+  end
+
+  def rights_uri
+    if relation
+      "https://library.bdrc.io/show/bdr:#{relation}"
+    end
   end
 end
