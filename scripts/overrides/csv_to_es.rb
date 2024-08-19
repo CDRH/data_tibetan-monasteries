@@ -3,6 +3,13 @@ class CsvToEs
   def assemble_collection_specific
     # should be changed for baserow
     @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
+    if @row["Accessed"]
+      begin
+        @json["date_accessed_k"] = Date.parse(@row["Accessed"]).strftime("%Y-%m-%d")
+      rescue Date::Error
+        @json["date_accessed_k"] = @row["Accessed"]
+      end
+    end
   end
 
   def get_id
@@ -104,6 +111,34 @@ class CsvToEs
     {
       "name" => @row["birthplace"]
     }
+  end
+
+  def citation
+    date = Datura::Helpers.date_standardize(@row["Treasury date"], false)
+    puts(date)
+    {
+      "name" => title,
+      "date" => date,
+      "publisher" => "Treasury of Lives"
+    }
+  end
+
+  def creator
+    {
+      "name" => @row["Treasury author"]
+    }
+  end
+
+  def date_updated
+    Datura::Helpers.date_standardize(@row["Accessed"], false)
+  end
+
+  def rights_uri
+    #note: this is not a direct link
+    #links are in the format http://www.tbrc.org/link?rid=P66. but outside the treasury of lives website this actually directs to TBRC
+    if relation
+      ["https://treasuryoflives.org/search/by_name/#{relation}", "http://www.tbrc.org/link?rid=#{relation}"]
+    end
   end
 
 
