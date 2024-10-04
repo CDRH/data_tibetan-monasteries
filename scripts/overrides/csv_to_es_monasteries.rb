@@ -82,22 +82,24 @@ class CsvToEsMonasteries < CsvToEs
     items
   end
 
-  def relation
-    @row["BDRC number"]
+  def has_relation
+    {
+      "id" => @row["BDRC number"]
+    }
   end
 
   def citation
     date = "2024"
     {
       "name" => title,
-      "date" => Datura::Helpers.date_standardize(date),
+      "date" => Datura::Helpers.date_standardize(date, false),
       "publisher" => "BDRC"
     }
   end
 
   def rights_uri
-    if relation
-      "https://library.bdrc.io/show/bdr:#{relation}"
+    if has_relation
+      "https://library.bdrc.io/show/bdr:#{has_relation["id"]}"
     end
   end
 end

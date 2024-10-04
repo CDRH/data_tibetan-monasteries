@@ -80,7 +80,7 @@ class CsvToEs
       items << {
         "subject" => uri,
         "predicate" => "sameAs",
-        "object" => "https://library.bdrc.io/show/bdr:#{relation}",
+        "object" => "https://library.bdrc.io/show/bdr:#{has_relation}",
         "source" => "Buddhist Digital Resource Center",
         "note" => "link"
       }
@@ -89,7 +89,7 @@ class CsvToEs
       items << {
         "subject" => uri,
         "predicate" => "sameAs",
-        "object" => "https://treasuryoflives.org/search/by_name/#{relation}",
+        "object" => "https://treasuryoflives.org/search/by_name/#{has_relation}",
         "source" => "Treasury of Lives",
         "note" => "link"
       }
@@ -102,9 +102,11 @@ class CsvToEs
     @row["description"]
   end
 
-  def relation
+  def has_relation
     #same as baserow
-    @row["BDRC number"]
+    {
+      "id" => @row["BDRC number"]
+    }
   end
 
   def spatial
@@ -114,13 +116,22 @@ class CsvToEs
   end
 
   def citation
-    date = Datura::Helpers.date_standardize(@row["Treasury date"], false)
-    puts(date)
-    {
+    citations = []
+    treasury_date = @row["Treasury date"]
+    treasury_citation = {
       "name" => title,
-      "date" => date,
+      "date" => Datura::Helpers.date_standardize(treasury_date, false),
       "publisher" => "Treasury of Lives"
     }
+    citations << treasury_citation
+    bdrc_date = "2024"
+    bdrc_citation = {
+      "name" => title + " (#{@row["BDRC number"]})",
+      "date" => Datura::Helpers.date_standardize(bdrc_date, false),
+      "publisher" => "BDRC"
+    }
+    citations << bdrc_citation
+    citations
   end
 
   def creator
@@ -134,10 +145,10 @@ class CsvToEs
   end
 
   def rights_uri
-    #note: this is not a direct link
-    #links are in the format http://www.tbrc.org/link?rid=P66. but outside the treasury of lives website this actually directs to TBRC
-    if relation
-      ["https://treasuryoflives.org/search/by_name/#{relation}", "http://www.tbrc.org/link?rid=#{relation}"]
+    #TODO is there a way to make a canonical link like https://treasuryoflives.org/biographies/view/Tsongkhapa-Lobzang-Drakpa/8986
+    #or else to webscrape the cite this page link
+    if has_relation
+      ["https://treasuryoflives.org/search/by_name/#{has_relation["id"]}", "http://library.bdrc.io/show/bdr:#{has_relation["id"]}"]
     end
   end
 
