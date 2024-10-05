@@ -99,7 +99,7 @@ class CsvToEsMonasteries < CsvToEs
 
   def rights_uri
     if has_relation
-      "https://library.bdrc.io/show/bdr:#{has_relation["id"]}"
+      ["https://library.bdrc.io/show/bdr:#{has_relation["id"]}"]
     end
   end
 end
