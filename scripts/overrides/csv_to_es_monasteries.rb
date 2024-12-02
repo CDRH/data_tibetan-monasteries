@@ -15,9 +15,18 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def spatial
-    {
+    loc = {
       "name" => @row["location"]
     }
+    if JSON.parse(@row["coordinates"]) && !JSON.parse(@row["coordinates"]).empty?
+      coordinates = JSON.parse(@row["coordinates"]).map(&:to_f)
+      if coordinates.class == Array
+        loc["coordinates"] = {}
+        loc["coordinates"]["lat"] = coordinates[0]
+        loc["coordinates"]["lon"] = coordinates[1]
+      end
+    end
+    loc
   end
 
   def person
