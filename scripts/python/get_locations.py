@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 import requests
+import json
 # read monasteries spreadsheet
 cwd = Path.cwd()
 monasteries_relative = "source/csv/monasteries.csv"
@@ -33,9 +34,8 @@ def coordinates(row):
             breakpoint()
         else:
             coords = ""
-    print(bdrc_id)
-    print(str(coords))
-    return str(coords)
+    return coords
 # iterate through spreadsheet and get coordinates
 monasteries_frame["coordinates"] = monasteries_frame.apply (lambda row: coordinates(row), axis=1)
+monasteries_frame["coordinates"] = monasteries_frame["coordinates"].apply(json.dumps)
 monasteries_frame.to_csv(monasteries_path, index=False)
