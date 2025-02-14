@@ -119,14 +119,14 @@ class CsvToEs
     citations = []
     treasury_date = @row["Treasury date"]
     treasury_citation = {
-      "name" => title,
+      "title" => title,
       "date" => Datura::Helpers.date_standardize(treasury_date, false),
       "publisher" => "Treasury of Lives"
     }
     citations << treasury_citation
     bdrc_date = "2024"
     bdrc_citation = {
-      "name" => title + " (#{@row["BDRC number"]})",
+      "title" => title + " (#{@row["BDRC number"]})",
       "date" => Datura::Helpers.date_standardize(bdrc_date, false),
       "publisher" => "BDRC"
     }
