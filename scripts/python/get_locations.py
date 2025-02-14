@@ -2,12 +2,13 @@ import pandas as pd
 from pathlib import Path
 import requests
 import json
+import csv
 # read monasteries spreadsheet
 cwd = Path.cwd()
 monasteries_relative = "source/csv/monasteries.csv"
 monasteries_path = (cwd / monasteries_relative).resolve()
-monasteries_frame = pd.read_csv(monasteries_path)
-
+monasteries_frame = pd.read_csv(monasteries_path, sep=";")
+monasteries_frame["coordinates"] = ""
 def coordinates(row):
     # query BDRC and get coordinates
     bdrc_id = row["BDRC number"]
@@ -34,8 +35,7 @@ def coordinates(row):
             breakpoint()
         else:
             coords = ""
-    return coords
+    return json.dumps(coords)
 # iterate through spreadsheet and get coordinates
-monasteries_frame["coordinates"] = monasteries_frame.apply (lambda row: coordinates(row), axis=1)
-monasteries_frame["coordinates"] = monasteries_frame["coordinates"].apply(json.dumps)
-monasteries_frame.to_csv(monasteries_path, index=False)
+monasteries_frame["coordinates"] = monasteries_frame.apply (lambda row: coordinates(row), axis=1, )
+monasteries_frame.to_csv(monasteries_path, index=False, sep=";", quoting=csv.QUOTE_NONE, escapechar='\\')
