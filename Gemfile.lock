@@ -3,7 +3,7 @@ GIT
   revision: 3e3269530f0b0078287d7d04ba3e9dd8ef1de5a6
   branch: dev
   specs:
-    datura (0.2.0)
+    datura (0.2.0.pre.beta)
       byebug (~> 11.0)
       colorize (~> 0.8.1)
       nokogiri (~> 1.10)
@@ -60,6 +60,7 @@ PLATFORMS
   arm64-darwin-23
   x86_64-darwin-19
   x86_64-darwin-22
+  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
