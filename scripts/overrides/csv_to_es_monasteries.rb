@@ -18,7 +18,7 @@ class CsvToEsMonasteries < CsvToEs
     loc = {
       "name" => @row["location"]
     }
-    if JSON.parse(@row["coordinates"]) && !JSON.parse(@row["coordinates"]).empty?
+    if @row["coordinates"] && JSON.parse(@row["coordinates"]) && !JSON.parse(@row["coordinates"]).empty?
       coordinates = JSON.parse(@row["coordinates"]).map(&:to_f)
       if coordinates.class == Array
         loc["coordinates"] = {}
