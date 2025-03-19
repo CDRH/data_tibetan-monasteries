@@ -18,11 +18,9 @@ class FileCsv
   end
 
   def read_csv(file_location, encoding="utf-8")
-      #column separator is changed from default semicolon
       CSV.read(file_location, **{
         encoding: encoding,
-        headers: true,
-        col_sep: ";"
+        headers: true
       })
   end
 
