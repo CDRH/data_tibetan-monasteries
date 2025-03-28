@@ -57,7 +57,7 @@ class CsvToEsMonasteries < CsvToEs
     if @row["Associated Figures"]
       # each figure should be in the format id|role|associated_teaching|story
       CSV.parse(@row["Associated Figures"])[0].each do |figure|
-        figure_data = figure.tr("\"", "").split("|")
+        figure_data = figure.tr("\"", "").tr("\n","").split("|")
         if figure_data[2] == "nan"
           figure_data[2] = nil
         end
