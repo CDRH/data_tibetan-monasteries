@@ -64,8 +64,11 @@ class CsvToEs
     items = []
     if @row["Associated Monasteries"]
       # each monastery should be in the format id|role|associated_teaching|story
-      @row["Associated Monasteries"].split("\",\"").each do |monastery|
-        monastery_data = monastery.tr("\"", "").split("|")
+      CSV.parse(@row["Associated Monasteries"])[0].each do |monastery|
+        monastery_data = monastery.tr("\"", "").tr("\n","").split("|")
+        if monastery_data[2] == "nan"
+          figure_data[2] = nil
+        end
         items << {
           "subject" => title, #name of the current figure
           "predicate" => monastery_data[2], #role
