@@ -100,7 +100,7 @@ class CsvToEsMonasteries < CsvToEs
   def citation
     date = "2024"
     {
-      "name" => title,
+      "title" => title,
       "date" => Datura::Helpers.date_standardize(date, false),
       "publisher" => "BDRC"
     }
