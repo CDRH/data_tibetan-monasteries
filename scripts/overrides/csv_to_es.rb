@@ -66,16 +66,23 @@ class CsvToEs
       # each monastery should be in the format id|role|associated_teaching|story
       CSV.parse(@row["Associated Monasteries"])[0].each do |monastery|
         monastery_data = monastery.tr("\"", "").tr("\n","").split("|")
+        monastery_data = monastery_data.each_with_index do |data, idx|
+          monastery_data[idx] = data.gsub(/\\\\u([0-9a-fA-F]{4})/) { |match| 
+            $1.hex.chr(Encoding::UTF_8) 
+          }
+        end
         if monastery_data[2] == "nan"
           figure_data[2] = nil
         end
         items << {
           "subject" => title, #name of the current figure
-          "predicate" => monastery_data[2], #role
+          "predicate" => monastery_data[2] || "TODO", #role
           "object" => monastery_data[1], #monastery id and name
-          "source" => monastery_data[3], #associated teaching
-          "note" => monastery_data[4] #story
+          "source" => monastery_data[3] || "TODO", #associated teaching
+          "note" => monastery_data[4] || "TODO" #story
         }
+        puts items.to_s
+        puts items.count
       end
     end
     if relation

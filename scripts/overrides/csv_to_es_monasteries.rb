@@ -64,9 +64,9 @@ class CsvToEsMonasteries < CsvToEs
         items << {
           "subject" => figure_data[0], #figure id and name
           "predicate" => figure_data[2], #role
-          "object" => title, #name of current monastery
-          "source" => figure_data[3], #associated teaching
-          "note" => figure_data[4] #story
+          "object" => title || "TODO", #name of current monastery
+          "source" => figure_data[3] || "TODO", #associated teaching
+          "note" => figure_data[4] || "TODO" #story
         }
       end
     end
