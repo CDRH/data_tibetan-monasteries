@@ -145,9 +145,15 @@ class CsvToEs
   end
 
   def creator
-    {
-      "name" => @row["Treasury author"]
-    }
+    if @row["Treasury author"].nil? || row["Treasury author"].empty? || @row["Treasury author"] == "NA"
+      {
+        "name" => nil
+      }
+    else
+      {
+        "name" => @row["Treasury author"]
+      }
+    end
   end
 
   def date_updated
