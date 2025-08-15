@@ -81,8 +81,6 @@ class CsvToEs
           "source" => monastery_data[3] || "TODO", #associated teaching
           "note" => monastery_data[4] || "TODO" #story
         }
-        puts items.to_s
-        puts items.count
       end
     end
     if relation
