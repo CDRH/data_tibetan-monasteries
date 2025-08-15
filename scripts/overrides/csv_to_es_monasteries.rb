@@ -1,7 +1,7 @@
 class CsvToEsMonasteries < CsvToEs
 
   def assemble_collection_specific
-    @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
+    @json["figure_count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
     @json["date_accessed_k"] = Datura::Helpers.date_standardize(@row["Accessed"], false)
   end
 

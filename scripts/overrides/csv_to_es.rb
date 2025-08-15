@@ -2,7 +2,7 @@ class CsvToEs
 
   def assemble_collection_specific
     # should be changed for baserow
-    @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
+    @json["monastery_count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
     if @row["Accessed"]
       begin
         @json["date_accessed_k"] = Date.parse(@row["Accessed"]).strftime("%Y-%m-%d")
