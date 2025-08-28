@@ -133,11 +133,13 @@ class CsvToEs
     }
     citations << treasury_citation
     bdrc_date = "2024"
-    bdrc_citation = {
-      "title" => title + " (#{@row["BDRC number"]})",
-      "date" => Datura::Helpers.date_standardize(bdrc_date, false),
-      "publisher" => "BDRC"
-    }
+    if @row["BDRC number"]
+      bdrc_citation = {
+        "title" => "#{title} (#{@row["BDRC number"]})",
+        "date" => Datura::Helpers.date_standardize(bdrc_date, false),
+        "publisher" => "BDRC"
+      }
+    end
     citations << bdrc_citation
     citations
   end
