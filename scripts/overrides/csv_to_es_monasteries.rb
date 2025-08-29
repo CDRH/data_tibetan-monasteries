@@ -1,11 +1,13 @@
 class CsvToEsMonasteries < CsvToEs
 
   def assemble_collection_specific
-    @json["count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
+    @json["figure_count_k"] = rdf.select { |i| i["predicate"] != "sameAs" }.count.to_s
+    @json["date_accessed_k"] = Datura::Helpers.date_standardize(@row["Accessed"], false)
   end
 
   def get_id
-    "mon_" + @row["id"]
+    #should work with baserow
+    @row["id 2"]
   end
 
   def category
@@ -13,18 +15,30 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def spatial
-    {
+    loc = {
       "name" => @row["location"]
     }
+    if @row["coordinates"] && JSON.parse(@row["coordinates"]) && !JSON.parse(@row["coordinates"]).empty?
+      coordinates = JSON.parse(@row["coordinates"]).map(&:to_f)
+      if coordinates.class == Array
+        loc["coordinates"] = {}
+        loc["coordinates"]["lat"] = coordinates[0]
+        loc["coordinates"]["lon"] = coordinates[1]
+      end
+    end
+    loc
   end
 
   def person
     # how to get the associated figures back in to here?
     # two-way relationships in Orchid and Elasticsearch
     # it should it least
+    # how to change for baserow? I'm not sure it is really different from the rdf field
+    # could record the figures somewhere
   end
 
   def date_not_before
+    #should work with baserow
     if @row["founding date"] && !@row["founding date"].empty?
       Datura::Helpers.date_standardize(@row["founding date"], false)
     end
@@ -38,24 +52,26 @@ class CsvToEsMonasteries < CsvToEs
 
 
   def rdf
+    # need to construct a markdown type field
     items = []
-    if @row["figures"]
+    if @row["Associated Figures"]
       # each figure should be in the format id|role|associated_teaching|story
-      JSON.parse(@row["figures"]).each do |figure|
-        figure_data = figure.split("|")
+      CSV.parse(@row["Associated Figures"])[0].each do |figure|
+        figure_data = figure.tr("\"", "").tr("\n","").split("|")
         if figure_data[2] == "nan"
           figure_data[2] = nil
         end
         items << {
           "subject" => figure_data[0], #figure id and name
-          "predicate" => figure_data[1], #role
-          "object" => title, #name of current monastery
-          "source" => figure_data[2], #associated teaching
-          "note" => figure_data[3] #story
+          "predicate" => figure_data[2], #role
+          "object" => title || "TODO", #name of current monastery
+          "source" => figure_data[3] || "TODO", #associated teaching
+          "note" => figure_data[4] || "TODO" #story
         }
       end
     end
     if relation
+      #this should work in baserow but I need to figure out the uri part
       items << {
         "subject" => uri,
         "predicate" => "sameAs",
@@ -75,7 +91,24 @@ class CsvToEsMonasteries < CsvToEs
     items
   end
 
-  def relation
-    @row["BDRC number"]
+  def has_relation
+    {
+      "id" => @row["BDRC number"]
+    }
+  end
+
+  def citation
+    date = "2024"
+    {
+      "title" => title,
+      "date" => Datura::Helpers.date_standardize(date, false),
+      "publisher" => "BDRC"
+    }
+  end
+
+  def rights_uri
+    if has_relation
+      ["https://library.bdrc.io/show/bdr:#{has_relation["id"]}"]
+    end
   end
 end
