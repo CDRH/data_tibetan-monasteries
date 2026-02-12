@@ -15,7 +15,6 @@ load_dotenv()
 URI = os.getenv("NEO4J_URI")
 AUTH = (os.getenv("NEO4J_USERNAME"), os.getenv("NEO4J_PASSWORD"))
 print(f"URI value: '{URI}'")
-print(f"URI repr: {repr(URI)}")  # This will show if there are quotes
 print(f"Username: '{AUTH[0]}'")
 
 #create dataframes from csv files
@@ -68,7 +67,7 @@ def create_figures(tx, nodes) -> None:
 
 def create_relationships(tx, relationships) -> None:
     for row in relationships.iter_rows(named=True):
-        #are monastery_name and figure_name redundant?
+        #TODO can monastery_name and figure_name be used here?
         relationships = row["Role"].split(", ")
         for relationship in relationships:
             relationship = re.sub('[^A-Za-z0-9 ]', '', relationship)
@@ -118,7 +117,6 @@ def neo4j_to_networkx(driver, relationship=None) -> nx.Graph:
         """)
         monastery_nodes = monastery_result.data()
         #Get all relationships
-        #TODO do I need to return the id for the graph? name would be more human readable
         if relationship:
             #query a specific relationship
             relationship_result = session.run(f"""
@@ -138,7 +136,6 @@ def neo4j_to_networkx(driver, relationship=None) -> nx.Graph:
             # """)
         edges = relationship_result.data()
         # Add nodes and edges to graph
-        #G.add_nodes_from(nodes)
         for node_data in figure_nodes:
             G.add_node(node_data['id'], bipartite=0, **node_data)
         for node_data in monastery_nodes:
@@ -149,7 +146,16 @@ def neo4j_to_networkx(driver, relationship=None) -> nx.Graph:
         return G
 
 def top_n_nodes(centrality_dict, G, n, filt = None):
-    """Get the top n nodes by score"""
+    """
+    Get the top n nodes by score
+    
+    Parameters:
+    centrality_dict: dictionary returned by one of NetworkX's centrality measures
+    G: nx.Graph
+        NetworkX graph to analyze
+    n: number of nodes to return, in order of score
+    filt: string to filter id's, note that even bipartite graphs will otherwise return all nodes
+    """
     try:
         if filt:
             centrality_dict = {k: v for k, v in centrality_dict.items() if filt in k}
@@ -165,10 +171,13 @@ def top_n_nodes(centrality_dict, G, n, filt = None):
 def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: str = None) -> dict:
     """
     Calculate different centrality measures for a given graph
+    Currently these include Katz centrality, betweenness centrality, closeness centrality
+    degree centrality, load centrality, and voterank
+    See NetworkX for details
 
     Parameters:
     G: nx.Graph
-        NetworkX graph to analyze
+        NetworkX graph to analyze. It should have bipartite nodes which are neccesary for betweenness, closeness, and degree centrality.
 
     Returns:
     dict
@@ -185,7 +194,7 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
         filt = label
 
     
-    # Calculate centrality measures
+    # Calculate centrality measures and return top nodes
     # note that only betweenness, degree, and closness centrality can be calculated
     try:
         katz_centrality = nx.katz_centrality(G, alpha=0.1)
@@ -197,6 +206,7 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
             for node in top_n_nodes(katz_centrality, G, n=20, filt=filt)
         ]
     except Exception as err:
+        print(err)
         result[f"Katz Centrality ({label})"] = "error for Katz centrality"
 
     try:
@@ -275,34 +285,37 @@ def print_network_analysis(results: dict, relationship=None) -> None:
     Print network analysis results in a formatted way.
 
     Parameters:
-    metrics: dict
-        Dictionary containing network metrics and centrality measures
+    results: dict
+        Dictionary containing centrality measures and ranked scores of different nodes
+        Keys should be centrality measures, and their values should be lists of dicts containing keys "Name" and "Score"
     """
     if relationship:
-        # Print centrality rankings for relationships
-        for measure in results.keys():
-            #need to be able to change this, I think
-            key = f"Top 20 {measure}"
-            print(f"{key} with {relationship} relationships:")
-            if isinstance(results[key], list):
-                for i, node, in enumerate(results[key], 1):
+        # Print nodes in order of centrality, with score
+        #filtered by relationship
+        for result in results:
+            # centrality measure
+            print(f"{result} with {relationship} relationships:")
+            if isinstance(results[result], list):
+                #results ranked
+                for i, node, in enumerate(results[result], 1):
                     print(f"{i}. {node['Name']} - {node['Score']}")
             else:
-                print(results[key])
+                print(results[result])
             print()
     else:
         # Print nodes in order of centrality, with score
         for result in results:
             # centrality measure
-            print(f"{result[key]}:")
-            if isinstance(result[key], list):
-                for i, node, in enumerate(results[key], 1):
+            print(f"{result}:")
+            if isinstance(results[result], list):
+                #results ranked
+                for i, node, in enumerate(results[result], 1):
                     print(f"{i}. {node['Name']} - {node['Score']}")
             else:
-                print(results[key])
+                print(results[result])
             print()
 
-#read the dataframes and create nodes in the database
+#read in the dataframes and create nodes in the neo4j database
 with driver.session() as session:
     print("adding monasteries")
     session.execute_write(create_monasteries, monasteries_df)
@@ -312,21 +325,20 @@ with driver.session() as session:
     session.execute_write(create_relationships, relationships_df)
 
 # Convert Neo4j graph to NetworkX graph
-#TODO use the bipartite analysis here
-G = neo4j_to_networkx(driver)
+G = neo4j_to_networkx(driver)\
+
+#analyze and print figures
 figure_nodes = {n for n, d in G.nodes(data=True) if d["bipartite"] == 0}
-# Analyze the network
-figure_metrics = analyze_network(G, figure_nodes, "Figures")
+figure_results = analyze_network(G, figure_nodes, "Figures")
 
-# Print the results
-print_network_analysis(figure_metrics)
+print_network_analysis(figure_results)
 
+#analyze and print monasteries
 monastery_nodes = set(G) - figure_nodes
-# Analyze the network
-monastery_metrics = analyze_network(G, monastery_nodes, "Monasteries")
-# Print the results
-print_network_analysis(monastery_metrics)
+monastery_results = analyze_network(G, monastery_nodes, "Monasteries")
+print_network_analysis(monastery_results)
 
+# sample relationships
 # # Convert Neo4j graph to NetworkX graph
 # G = neo4j_to_networkx(driver, relationship="Student")
 
