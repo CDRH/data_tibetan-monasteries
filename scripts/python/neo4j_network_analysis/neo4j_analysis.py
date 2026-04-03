@@ -329,14 +329,11 @@ G = neo4j_to_networkx(driver)\
 
 #analyze and print figures
 figure_nodes = {n for n, d in G.nodes(data=True) if d["bipartite"] == 0}
-figure_results = analyze_network(G, figure_nodes, "Figures")
-
-print_network_analysis(figure_results)
+analyze_network(G, figure_nodes, "Figures")
 
 #analyze and print monasteries
 monastery_nodes = set(G) - figure_nodes
-monastery_results = analyze_network(G, monastery_nodes, "Monasteries")
-print_network_analysis(monastery_results)
+analyze_network(G, monastery_nodes, "Monasteries")
 
 # sample relationships
 # # Convert Neo4j graph to NetworkX graph
