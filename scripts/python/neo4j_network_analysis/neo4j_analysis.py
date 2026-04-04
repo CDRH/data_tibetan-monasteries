@@ -325,7 +325,7 @@ with driver.session() as session:
     session.execute_write(create_relationships, relationships_df)
 
 # Convert Neo4j graph to NetworkX graph
-G = neo4j_to_networkx(driver)\
+G = neo4j_to_networkx(driver)
 
 #analyze and print figures
 figure_nodes = {n for n, d in G.nodes(data=True) if d["bipartite"] == 0}
@@ -338,6 +338,13 @@ analyze_network(G, monastery_nodes, "Monasteries")
 # sample relationships
 # # Convert Neo4j graph to NetworkX graph
 # G = neo4j_to_networkx(driver, relationship="Student")
+G = neo4j_to_networkx(driver, relationship="Student")
+all_nodes = set(G)
+analyze_network(G, all_nodes, relationship="Student")
+
+G = neo4j_to_networkx(driver, relationship="Pilgrim")
+all_nodes = set(G)
+analyze_network(G, all_nodes, relationship="Pilgrim")
 
 # # Analyze the network
 # metrics = analyze_network(G)
