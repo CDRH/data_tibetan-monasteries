@@ -360,10 +360,12 @@ analyze_network(G, monastery_nodes, "Monasteries", location="Kham")
 # sample relationships
 # # Convert Neo4j graph to NetworkX graph
 # G = neo4j_to_networkx(driver, relationship="Student")
+print("analyzing student relationships")
 G = neo4j_to_networkx(driver, relationship="Student")
 all_nodes = set(G)
 analyze_network(G, all_nodes, relationship="Student")
 
+print("analyzing pilgrim relationships")
 G = neo4j_to_networkx(driver, relationship="Pilgrim")
 all_nodes = set(G)
 analyze_network(G, all_nodes, relationship="Pilgrim")
