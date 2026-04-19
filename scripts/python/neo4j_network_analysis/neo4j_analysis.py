@@ -53,13 +53,13 @@ def create_figures(tx, nodes) -> None:
     for row in nodes.iter_rows(named=True):
         try:
             tx.run(
-            "MERGE (f: Figure {id: $id, name: $name, birth_date: $birth_date, death_date: $death_date, religious_tradition: $religious_tradition})",
+            "MERGE (f: Figure {id: $id, name: $name, location: $location, birth_date: $birth_date, death_date: $death_date, religious_tradition: $religious_tradition})",
             id=row["id 2"],
             name=row["name"],
             birth_date=row["birth_date"],
             death_date=row["death_date"], 
             religious_tradition=row["religious_tradition"],
-            birthplace=row["Birthplace"]
+            location=row["Birthplace"]
             )
         except Exception as err:
             print(err)
@@ -107,13 +107,13 @@ def neo4j_to_networkx(driver, relationship=None) -> nx.Graph:
         # Get all figure nodes
         figure_result = session.run("""
             MATCH (f:Figure)
-            RETURN f.id AS id, f.name AS name, f.religious_tradition AS religious_tradition
+            RETURN f.id AS id, f.name AS name, f.religious_tradition AS religious_tradition, f.location AS location
         """)
         figure_nodes = figure_result.data()
         #get all monastery nodes
         monastery_result = session.run("""
             MATCH (m:Monastery)
-            RETURN m.id AS id, m.name AS name, m.religious_tradition AS religious_tradition
+            RETURN m.id AS id, m.name AS name, m.religious_tradition AS religious_tradition, m.location AS location
         """)
         monastery_nodes = monastery_result.data()
         #Get all relationships
@@ -145,7 +145,7 @@ def neo4j_to_networkx(driver, relationship=None) -> nx.Graph:
 
         return G
 
-def top_n_nodes(centrality_dict, G, n, filt = None):
+def top_n_nodes(centrality_dict, G, n, filt = None, location = None, exclude_location = None):
     """
     Get the top n nodes by score
     
@@ -161,14 +161,18 @@ def top_n_nodes(centrality_dict, G, n, filt = None):
             centrality_dict = {k: v for k, v in centrality_dict.items() if filt in k}
             sorted_nodes = heapq.nlargest(n, centrality_dict.items(), key=lambda item: item[1])
             sorted_nodes = list(filter(lambda x: filt in x[0], sorted_nodes))[:n]
-        else:
+        else: 
             sorted_nodes = heapq.nlargest(n, centrality_dict.items(), key=lambda item: item[1])
+        if location:
+             sorted_nodes = list(filter(lambda x: location in G.nodes[x[0]]["location"], sorted_nodes))
+        if exclude_location:
+             sorted_nodes = list(filter(lambda x: exclude_location not in G.nodes[x[0]]["location"], sorted_nodes))
         return [{"name": G.nodes[node[0]]["name"], "score": node[1] } for node in sorted_nodes]
     except ValueError as err:
         print(err)
         print(traceback.format_exc())
 
-def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: str = None) -> dict:
+def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: str = None, location: str = None, exclude_location: str = None) -> dict:
     """
     Calculate different centrality measures for a given graph
     Currently these include Katz centrality, betweenness centrality, closeness centrality
@@ -193,7 +197,17 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
     else:
         filt = label
 
-    
+    if location or exclude_location:
+        n = 100
+    else:
+        n = 20
+
+    if location:
+        print(f"Printing results for {location}")
+    if exclude_location:
+        print(f"Printing results excluding {exclude_location}")
+    if relationship:
+        print(f"Printing results for relationship {relationship}")
     # Calculate centrality measures and return top nodes
     # note that only betweenness, degree, and closness centrality can be calculated
     try:
@@ -203,7 +217,7 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
                 "Name": node["name"],
                 "Score": round(node["score"], 4)
             }
-            for node in top_n_nodes(katz_centrality, G, n=20, filt=filt)
+            for node in top_n_nodes(katz_centrality, G, n, filt=filt, location=location, exclude_location=exclude_location)
         ]
     except Exception as err:
         print(err)
@@ -216,7 +230,7 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
                 "Name": node["name"],
                 "Score": round(node["score"], 4)
             }
-            for node in top_n_nodes(betweenness, G, n=20, filt=filt)
+            for node in top_n_nodes(betweenness, G, n, filt=filt, location=location, exclude_location=exclude_location)
         ]
     except Exception as err:
         print(err)
@@ -229,7 +243,7 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
                 "Name": node["name"],
                 "Score": round(node["score"], 4)
             }
-            for node in top_n_nodes(closeness, G, n=20, filt=filt)
+            for node in top_n_nodes(closeness, G, n, filt=filt, location=location, exclude_location=exclude_location)
         ]
     except Exception as err:
         print(err)
@@ -242,7 +256,7 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
                 "Name": node["name"],
                 "Score": round(node["score"], 4)
             }
-            for node in top_n_nodes(degree, G, n=20, filt=filt)
+            for node in top_n_nodes(degree, G, n, filt=filt, location=location, exclude_location=exclude_location)
         ]
     except Exception as err:
         print(err)
@@ -255,27 +269,28 @@ def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: st
                 "Name": node["name"],
                 "Score": round(node["score"], 4)
             }
-            for node in top_n_nodes(load, G, n=20, filt=filt)
+            for node in top_n_nodes(load, G, n, filt=filt, location=location, exclude_location=exclude_location)
         ]
     except Exception as err:
         print(err)
         result[f"Load Centrality ({label})"] = "error for load centrality"
 
     #vote rank
-    try:
-        voterank = nx.voterank(G)
-        if filt:
-            voterank = list(filter(lambda x : filt in x, voterank))
-        result[f"Vote Rank ({label})"] = [
-            {
-                "Name": G.nodes[node_id]["name"],
-                "Score": index
-            }
-            for index, node_id in enumerate(voterank[:20], 1)
-        ]
-    except Exception as err:
-        print(err)
-        result[f"Vote Rank ({label})"] = "error for vote rank centrality"
+    if not (location or exclude_location):
+        try:
+            voterank = nx.voterank(G)
+            if filt:
+                voterank = list(filter(lambda x : filt in x, voterank))
+            result[f"Vote Rank ({label})"] = [
+                {
+                    "Name": G.nodes[node_id]["name"],
+                    "Score": index
+                }
+                for index, node_id in enumerate(voterank[:20], 1)
+            ]
+        except Exception as err:
+            print(err)
+            result[f"Vote Rank ({label})"] = "error for vote rank centrality"
 
     print_network_analysis(result, relationship=relationship)
     return result
@@ -330,10 +345,17 @@ G = neo4j_to_networkx(driver)
 #analyze and print figures
 figure_nodes = {n for n, d in G.nodes(data=True) if d["bipartite"] == 0}
 analyze_network(G, figure_nodes, "Figures")
+analyze_network(G, figure_nodes, "Figures", exclude_location="Tibet")
+analyze_network(G, figure_nodes, "Figures", location="Amdo")
+analyze_network(G, figure_nodes, "Figures", location="Kham")
 
 #analyze and print monasteries
 monastery_nodes = set(G) - figure_nodes
 analyze_network(G, monastery_nodes, "Monasteries")
+analyze_network(G, monastery_nodes, "Monasteries", exclude_location="Tibet")
+analyze_network(G, monastery_nodes, "Monasteries", location="Amdo")
+analyze_network(G, monastery_nodes, "Monasteries", location="Kham")
+
 
 # sample relationships
 # # Convert Neo4j graph to NetworkX graph
