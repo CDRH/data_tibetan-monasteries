@@ -4,10 +4,25 @@ class FileCsv
       # than its FileCsv.transform_es, so copying latter's code for now
       puts "transforming #{self.filename}"
       es_doc = []
+
+      row_filter = build_csv_row_filter
+      if row_filter
+        puts "csv_rows filter active: only processing rows matching /#{@options["csv_rows"]}/".cyan
+      end
+
       table = table_type
       @csv.each do |row|
-        if !row.header_row?
-          es_doc << row_to_es(@csv.headers, row, table)
+        next if row.header_row?
+        next if row_filter && !row_matches_filter?(row, row_filter)
+
+        row_to_es = row_to_es(@csv.headers, row, table)
+        if !row_to_es["identifier"].to_s.empty? && !row_to_es["title"].to_s.empty?
+          es_doc << row_to_es
+        else
+          msg = "Skipping item without id or title: check line #{row.to_s.strip[0..200]}"
+          puts msg.yellow
+          @skipped_es << msg
+          next
         end
       end
       if @options["output"]
