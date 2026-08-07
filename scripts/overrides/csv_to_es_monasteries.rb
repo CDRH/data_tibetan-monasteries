@@ -5,7 +5,7 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def get_id
-    "mon_" + @row["id"]
+    "mon_" + @row["id"] unless @row["id"].nil?
   end
 
   def category

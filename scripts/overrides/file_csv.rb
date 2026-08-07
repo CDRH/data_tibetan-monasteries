@@ -41,7 +41,7 @@ class FileCsv
 
   def row_to_es(headers, row, table)
     # process the cases and people tables with different overrides
-    puts "processing " + row["id"]
+    puts "processing " + row["id"] unless row["id"].nil?
     if table == "figures"
       CsvToEs.new(row, options, @csv, self.filename(false)).json
     elsif table == "monasteries"
