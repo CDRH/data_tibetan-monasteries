@@ -5,7 +5,8 @@ class CsvToEs
   end
 
   def get_id
-    "fig_" + @row["id"] unless @row["id"].nil?
+    id = @row["id"]
+    "fig_#{id}" if id
   end
 
   def category
