@@ -46,7 +46,6 @@ def create_monasteries(tx, nodes) -> None:
             religious_tradition=row["religious_tradition"]
             )
         except Exception as err:
-             print(err)
              print(traceback.format_exc())
 
 def create_figures(tx, nodes) -> None:
@@ -62,7 +61,6 @@ def create_figures(tx, nodes) -> None:
             location=row["Birthplace"]
             )
         except Exception as err:
-            print(err)
             print(traceback.format_exc())
 
 def create_relationships(tx, relationships) -> None:
@@ -95,7 +93,6 @@ def create_relationships(tx, relationships) -> None:
                     associated_teaching=row["Religious practice or teaching"]
                 )
             except Exception as err:
-                print(err)
                 print(traceback.format_exc())
 
 def neo4j_to_networkx(driver, relationship=None) -> nx.Graph:
