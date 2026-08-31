@@ -6,7 +6,6 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def get_id
-    #should work with baserow
     @row["id 2"]
   end
 
