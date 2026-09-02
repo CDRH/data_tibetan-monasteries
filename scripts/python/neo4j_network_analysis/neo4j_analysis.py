@@ -166,7 +166,6 @@ def top_n_nodes(centrality_dict, G, n, filt = None, location = None, exclude_loc
              sorted_nodes = list(filter(lambda x: exclude_location not in G.nodes[x[0]]["location"], sorted_nodes))
         return [{"name": G.nodes[node[0]]["name"], "score": node[1] } for node in sorted_nodes]
     except ValueError as err:
-        print(err)
         print(traceback.format_exc())
 
 def analyze_network(G: nx.Graph, nodeset: set, label: str = "", relationship: str = None, location: str = None, exclude_location: str = None) -> dict:
