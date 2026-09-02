@@ -13,7 +13,6 @@ class CsvToEs
   end
 
   def get_id
-    #test to make sure this works with baserow but it should
     @row["id 2"]
   end
 

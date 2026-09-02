@@ -6,7 +6,6 @@ class CsvToEsMonasteries < CsvToEs
   end
 
   def get_id
-    #should work with baserow
     @row["id 2"]
   end
 
@@ -18,14 +17,15 @@ class CsvToEsMonasteries < CsvToEs
     loc = {
       "name" => @row["location"]
     }
-    if @row["coordinates"] && JSON.parse(@row["coordinates"]) && !JSON.parse(@row["coordinates"]).empty?
-      coordinates = JSON.parse(@row["coordinates"]).map(&:to_f)
-      if coordinates.class == Array
-        loc["coordinates"] = {}
-        loc["coordinates"]["lat"] = coordinates[0]
-        loc["coordinates"]["lon"] = coordinates[1]
-      end
-    end
+    # not currently in use, should refactor
+    # if @row["coordinates"] && JSON.parse(@row["coordinates"]) && !JSON.parse(@row["coordinates"]).empty?
+    #   coordinates = JSON.parse(@row["coordinates"]).map(&:to_f)
+    #   if coordinates.class == Array
+    #     loc["coordinates"] = {}
+    #     loc["coordinates"]["lat"] = coordinates[0]
+    #     loc["coordinates"]["lon"] = coordinates[1]
+    #   end
+    # end
     loc
   end
 
