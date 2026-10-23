@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'datura', git: 'https://github.com/CDRH/datura', tag: "v1.1.0"
+gem 'datura', git: 'https://github.com/CDRH/datura', tag: "v2.0.0"
 gem 'byebug'
 
 # Will said this was added when working with an error
