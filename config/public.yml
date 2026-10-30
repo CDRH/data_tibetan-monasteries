@@ -7,7 +7,7 @@
 
 default:
   # please fill in the name of your collection here
-  project_desc: Tibetan Monasteries: Religious and Institutional Networks
+  project_desc: "Tibetan Monasteries: Religious and Institutional Networks"
   collection: tibetan-monasteries
   api_version: "2.0"  
 
