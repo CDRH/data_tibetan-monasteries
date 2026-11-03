@@ -7,27 +7,23 @@
 
 default:
   # please fill in the name of your collection here
-  # collection:
-
-  data_base: https://cdrhmedia.unl.edu  # (do not include /data/ in path)
-  media_base: https://cdrhmedia.unl.edu
-
-  # refer to the documentation for details about overriding the XSL
-  # html_html_xsl:
-  # tei_html_xsl: scripts/xslt/tei.xsl
-  # vra_html_xsl:
-
-  variables_html:
-    site_url: override_in_public
-    image_large: 800
-    image_thumb: 150
+  project_desc: "Tibetan Monasteries: Religious and Institutional Networks"
+  collection: tibetan-monasteries
+  api_version: "2.0"  
 
 development:
-  es_index: edit_public_config
-  es_path: https://edit_public_config/elastic
-  data_base: https://override_public
+  site_url: https://servername.unl.edu/tibetan-monasteries
+  es_index: cdrhapidev-v2
+  es_path: https://servername.unl.edu/elastic
+  media_base: https://servername.unl.edu
+  data_base: https://servername.unl.edu/media
 
-# production:
+production:
   # limit processed files by adding allowed ids on newlines in a file
   # allowed_files: config/allowed.txt
+  site_url: https://tibetanmonasticnetworks.unl.edu
+  es_path: https://cdrhapi.unl.edu/elastic
+  es_index: cdrhapi-v2
+  media_base: https://servername.unl.edu
+  data_base: https://servername.unl.edu/media
 
